@@ -4,7 +4,7 @@ nedb-to-mongodb
 If you've outgrown <a href="https://github.com/louischatriot/nedb" target="_blank">NeDB</a>, use this utility to transfer all your data in a nedb database in a MongoDB collection.
 
 ### Installation
-```javascript
+```bash
 git clone git@github.com:louischatriot/nedb-to-mongodb.git
 npm install
 ```

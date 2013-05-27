@@ -16,7 +16,12 @@ program.version('0.1.0')
   .option('-d --mongodb-dbname [name]', 'Name of the Mongo database')
   .option('-c --mongodb-collection [name]', 'Collection to put your data into')
   .option('-n --nedb-datafile [path]', 'Path to the NeDB data file')
+  .option('-k --keep-ids [true/false]', 'Whether to keep ids used by NeDB or have MongoDB generate ObjectIds (probably a good idea to use ObjectIds from now on!)')
   .parse(process.argv);
+
+
+console.log("NEED SOME HELP? Type ./transfer.js --help");
+console.log("-----------------------------------------");
 
 
 // Making sure we have all the config parameters we need
@@ -35,6 +40,8 @@ config.mongodbCollection = program.mongodbCollection;
 if (!program.nedbDatafile) { console.log("No NeDB datafile path provided, can't proceed"); process.exit(1); }
 config.nedbDatafile = program.nedbDatafile;
 
+if (!program.keepIds || typeof program.keepIds !== 'string') { console.log("The --keep-ids option wasn't used or not explicitely initialized."); process.exit(1); }
+config.keepIds = program.keepIds === 'true' ? true : false;
 
 mdb = new mongodb.Db( config.mongodbDbname
                     , new mongodb.Server(config.mongodbHost, config.mongodbPort, {})
@@ -73,6 +80,7 @@ mdb.open(function (err) {
     console.log("Inserting documents (every dot represents one document) ...");
     async.each(ndb.data, function (doc, cb) {
       process.stdout.write('.');
+      if (!config.keepIds) { delete doc._id; }
       collection.insert(doc, function (err) { return cb(err); });
     }, function (err) {
       console.log("");

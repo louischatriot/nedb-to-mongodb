@@ -3,6 +3,7 @@
 var program = require('commander')
   , Nedb = require('nedb')
   , mongodb = require('mongodb')
+  , async = require('async')
   , config = {}
   , mdb
   , ndb
@@ -69,6 +70,21 @@ mdb.open(function (err) {
       console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + ndb.data.length + " documents");
     }
 
+    console.log("Inserting documents (every dot represents one document) ...");
+    async.each(ndb.data, function (doc, cb) {
+      process.stdout.write('.');
+      collection.insert(doc, function (err) { return cb(err); });
+    }, function (err) {
+      console.log("");
+      if (err) {
+        console.log("An error happened while inserting data");
+        console.log(err);
+        process.exit(1);
+      } else {
+        console.log("Everything went fine");
+        process.exit(0);
+      }
+    });
   });
 });
 

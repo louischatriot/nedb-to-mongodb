@@ -1,0 +1,34 @@
+{
+  "name": "nedbto-mongodb",
+  "version": "0.1.0",
+  "author": {
+    "name": "Louis Chatriot",
+    "email": "louis.chatriot@gmail.com"
+  },
+  "description": "Put all your data in a NeDB database in a MongoDB collection",
+  "keywords": [
+    "database",
+    "connector",
+    "nedb",
+    "mongodb"
+  ],
+  "homepage": "https://github.com/louischatriot/nedb-to-mongodb",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:louischatriot/nedb-to-mongodb.git"
+  },
+  "dependencies": {
+    "nedb": "~0.5.2",
+    "mongodb": "~1.3.6"
+  },
+  "devDependencies": {
+    "chai": "1.0.x",
+    "mocha": "1.4.x",
+    "request": "2.9.x"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "main": "index",
+  "licence": "MIT"
+}

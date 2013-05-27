@@ -1,5 +1,5 @@
 {
-  "name": "nedbto-mongodb",
+  "name": "nedb-to-mongodb",
   "version": "0.1.0",
   "author": {
     "name": "Louis Chatriot",
@@ -23,14 +23,6 @@
     "commander": "~1.1.1",
     "async": "~0.2.8"
   },
-  "devDependencies": {
-    "chai": "1.0.x",
-    "mocha": "1.4.x",
-    "request": "2.9.x"
-  },
-  "scripts": {
-    "test": "make test"
-  },
-  "main": "index",
+  "main": "transfer",
   "licence": "MIT"
 }

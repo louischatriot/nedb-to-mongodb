@@ -17,6 +17,7 @@ program.version('0.1.0')
   .option('-c --mongodb-collection [name]', 'Collection to put your data into')
   .option('-n --nedb-datafile [path]', 'Path to the NeDB data file')
   .option('-k --keep-ids [true/false]', 'Whether to keep ids used by NeDB or have MongoDB generate ObjectIds (probably a good idea to use ObjectIds from now on!)')
+  .option('-l --limit-parallel [limit]', 'Maximum number of parallel operations', Number, 0)
   .parse(process.argv);
 
 
@@ -40,8 +41,11 @@ config.mongodbCollection = program.mongodbCollection;
 if (!program.nedbDatafile) { console.log("No NeDB datafile path provided, can't proceed"); process.exit(1); }
 config.nedbDatafile = program.nedbDatafile;
 
-if (!program.keepIds || typeof program.keepIds !== 'string') { console.log("The --keep-ids option wasn't used or not explicitely initialized."); process.exit(1); }
+if (!program.keepIds || typeof program.keepIds !== 'string') { console.log("The --keep-ids option wasn't used or not explicitly initialized."); process.exit(1); }
 config.keepIds = program.keepIds === 'true' ? true : false;
+
+if (!program.limitParallel) { console.log("The --limit-parallel option wasn't used"); }
+config.limitParallel = program.limitParallel;
 
 mdb = new mongodb.Db( config.mongodbDbname
                     , new mongodb.Server(config.mongodbHost, config.mongodbPort, {})
@@ -77,12 +81,13 @@ mdb.open(function (err) {
       console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + ndb.data.length + " documents");
     }
 
-    console.log("Inserting documents (every dot represents one document) ...");
-    async.each(ndb.data, function (doc, cb) {
+    function handleDoc(doc, cb) {
       process.stdout.write('.');
       if (!config.keepIds) { delete doc._id; }
       collection.insert(doc, function (err) { return cb(err); });
-    }, function (err) {
+    }
+
+    function complete(err) {
       console.log("");
       if (err) {
         console.log("An error happened while inserting data");
@@ -92,7 +97,16 @@ mdb.open(function (err) {
         console.log("Everything went fine");
         process.exit(0);
       }
-    });
+    }
+
+    console.log("Inserting documents (every dot represents one document) ...");
+
+    if (config.limitParallel) {
+      console.log("Using parallel limit of " + config.limitParallel);
+      async.eachLimit(ndb.data, config.limitParallel, handleDoc, complete);
+    } else {
+      async.each(ndb.data, handleDoc, complete);
+    }
   });
 });
 

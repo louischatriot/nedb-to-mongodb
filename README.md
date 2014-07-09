@@ -6,6 +6,7 @@ If you've outgrown <a href="https://github.com/louischatriot/nedb" target="_blan
 ### Installation
 ```bash
 git clone git@github.com:louischatriot/nedb-to-mongodb.git
+cd nedb-to-mongodb
 npm install
 ```
 

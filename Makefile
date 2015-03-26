@@ -4,4 +4,3 @@ test:
 	@echo "Tests finished"
 
 .PHONY: test
-

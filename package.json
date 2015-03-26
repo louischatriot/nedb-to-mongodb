@@ -6,6 +6,10 @@
     "email": "louis.chatriot@gmail.com"
   },
   "description": "Put all your data in a NeDB database in a MongoDB collection",
+  "scripts": {
+    "transfer": "node transfer.js",
+    "test": "make test"
+  },
   "keywords": [
     "database",
     "connector",
@@ -24,5 +28,12 @@
     "async": "~0.2.8"
   },
   "main": "transfer",
-  "licence": "MIT"
+  "licence": "MIT",
+  "preferGlobal": "true",
+  "bin": {
+    "nedb-to-mongodb": "transfer.js"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.1"
+  }
 }

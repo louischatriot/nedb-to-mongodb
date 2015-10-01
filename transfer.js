@@ -20,7 +20,7 @@ program.version('0.1.0')
   .parse(process.argv);
 
 
-console.log("NEED SOME HELP? Type ./transfer.js --help");
+console.log("NEED SOME HELP? Type nedb-to-mongodb --help");
 console.log("-----------------------------------------");
 
 
@@ -95,4 +95,3 @@ mdb.open(function (err) {
     });
   });
 });
-

@@ -5,6 +5,8 @@ If you've outgrown <a href="https://github.com/louischatriot/nedb" target="_blan
 
 **IMPORTANT:** this uses by default the latest versions of nedb and the mongodb driver. If you're not using these the script may not work and you need to modify the `package.json`.
 
+Please follow <a href="https://github.com/louischatriot/nedb#bug-reporting-guidelines">the NeDB bug reporting guidelines</a> if you submit an issue.
+
 ### Installation
 ```bash
 git clone git@github.com:louischatriot/nedb-to-mongodb.git

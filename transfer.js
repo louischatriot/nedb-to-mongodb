@@ -69,30 +69,33 @@ mdb.open(function (err) {
       process.exit(1);
     }
 
-    if (ndb.data.length === 0) {
-      console.log("The NeDB database at " + config.nedbDatafile + " contains no data, no work required");
-      console.log("You should probably check the NeDB datafile path though!");
-      process.exit(0);
-    } else {
-      console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + ndb.data.length + " documents");
-    }
-
-    console.log("Inserting documents (every dot represents one document) ...");
-    async.each(ndb.data, function (doc, cb) {
-      process.stdout.write('.');
-      if (!config.keepIds) { delete doc._id; }
-      collection.insert(doc, function (err) { return cb(err); });
-    }, function (err) {
-      console.log("");
-      if (err) {
-        console.log("An error happened while inserting data");
-        console.log(err);
-        process.exit(1);
-      } else {
-        console.log("Everything went fine");
+    ndb.find({}, function (err, docs) {
+      if (docs.length === 0) {
+        console.log("The NeDB database at " + config.nedbDatafile + " contains no data, no work required");
+        console.log("You should probably check the NeDB datafile path though!");
         process.exit(0);
+      } else {
+        console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + docs.length + " documents");
       }
+
+      console.log("Inserting documents (every dot represents one document) ...");
+      async.each(docs, function (doc, cb) {
+        process.stdout.write('.');
+        if (!config.keepIds) { delete doc._id; }
+        collection.insert(doc, function (err) { return cb(err); });
+      }, function (err) {
+        console.log("");
+        if (err) {
+          console.log("An error happened while inserting data");
+          console.log(err);
+          process.exit(1);
+        } else {
+          console.log("Everything went fine");
+          process.exit(0);
+        }
+      });
     });
+
   });
 });
 

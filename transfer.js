@@ -1,23 +1,22 @@
 #!/usr/bin/env node
 
 var program = require('commander')
-  , Nedb = require('nedb')
-  , mongodb = require('mongodb')
-  , async = require('async')
-  , config = {}
-  , mdb
-  , ndb
-  ;
+    , Nedb = require('nedb')
+    , mongodb = require('mongodb')
+    , async = require('async')
+    , config = {}
+    , ndb
+;
 
 // Parsing command-line options
 program.version('0.1.0')
-  .option('-h --mongodb-host [host]', 'Host where your MongoDB is (default: localhost)')
-  .option('-p --mongodb-port [port]', 'Port on which your MongoDB server is running (default: 27017)', parseInt)
-  .option('-d --mongodb-dbname [name]', 'Name of the Mongo database')
-  .option('-c --mongodb-collection [name]', 'Collection to put your data into')
-  .option('-n --nedb-datafile [path]', 'Path to the NeDB data file')
-  .option('-k --keep-ids [true/false]', 'Whether to keep ids used by NeDB or have MongoDB generate ObjectIds (probably a good idea to use ObjectIds from now on!)')
-  .parse(process.argv);
+    .option('-h --mongodb-host [host]', 'Host where your MongoDB is (default: localhost)')
+    .option('-p --mongodb-port [port]', 'Port on which your MongoDB server is running (default: 27017)', parseInt)
+    .option('-d --mongodb-dbname [name]', 'Name of the Mongo database')
+    .option('-c --mongodb-collection [name]', 'Collection to put your data into')
+    .option('-n --nedb-datafile [path]', 'Path to the NeDB data file')
+    .option('-k --keep-ids [true/false]', 'Whether to keep ids used by NeDB or have MongoDB generate ObjectIds (probably a good idea to use ObjectIds from now on!)')
+    .parse(process.argv);
 
 
 console.log("NEED SOME HELP? Type ./transfer.js --help");
@@ -41,14 +40,13 @@ if (!program.nedbDatafile) { console.log("No NeDB datafile path provided, can't 
 config.nedbDatafile = program.nedbDatafile;
 
 if (!program.keepIds || typeof program.keepIds !== 'string') { console.log("The --keep-ids option wasn't used or not explicitely initialized."); process.exit(1); }
-config.keepIds = program.keepIds === 'true' ? true : false;
+config.keepIds = program.keepIds === 'true';
 
-mdb = new mongodb.Db( config.mongodbDbname
-                    , new mongodb.Server(config.mongodbHost, config.mongodbPort, {})
-                    , { w: 1 } );
+const mongoClient = mongodb.MongoClient;
+const url = 'mongodb://' + config.mongodbHost + ':' + config.mongodbPort;
 
 // Connect to the MongoDB database
-mdb.open(function (err) {
+mongoClient.connect(url, function (err, client) {
   var collection;
 
   if (err) {
@@ -57,28 +55,26 @@ mdb.open(function (err) {
     process.exit(1);
   }
 
+  const mdb = client.db(config.mongodbDbname);
+
   console.log("Connected to mongodb://" + config.mongodbHost + ":" + config.mongodbPort + "/" + config.mongodbDbname);
 
   collection = mdb.collection(config.mongodbCollection);
 
-  ndb = new Nedb(config.nedbDatafile);
-  ndb.loadDatabase(function (err) {
-    if (err) {
-      console.log("Error while loading the data from the NeDB database");
-      console.log(err);
-      process.exit(1);
-    }
-
-    if (ndb.data.length === 0) {
+  ndb = new Nedb({ filename: config.nedbDatafile, autoload: true });
+  ndb.loadDatabase(function () {
+    const data = ndb.getAllData();
+    console.log(data);
+    if (data.length === 0) {
       console.log("The NeDB database at " + config.nedbDatafile + " contains no data, no work required");
       console.log("You should probably check the NeDB datafile path though!");
       process.exit(0);
     } else {
-      console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + ndb.data.length + " documents");
+      console.log("Loaded data from the NeDB database at " + config.nedbDatafile + ", " + data.length + " documents");
     }
 
     console.log("Inserting documents (every dot represents one document) ...");
-    async.each(ndb.data, function (doc, cb) {
+    async.each(data, function (doc, cb) {
       process.stdout.write('.');
       if (!config.keepIds) { delete doc._id; }
       collection.insert(doc, function (err) { return cb(err); });
@@ -93,6 +89,5 @@ mdb.open(function (err) {
         process.exit(0);
       }
     });
-  });
+  })
 });
-

@@ -18,8 +18,8 @@
     "url": "git@github.com:louischatriot/nedb-to-mongodb.git"
   },
   "dependencies": {
-    "nedb": "latest",
-    "mongodb": "latest",
+    "nedb": "^1.8.0",
+    "mongodb": "^3.3.4",
     "commander": "~1.1.1",
     "async": "~0.2.8"
   },
